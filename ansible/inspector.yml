@@ -1,12 +1,4 @@
 ---
-- name: Set system up
-  hosts: inspector
-  tasks:
-    - name: Set time zone
-      timezone:
-        name: America/Los_Angeles
-      become: true
-
 - name: Install software using package managers
   hosts: inspector
   tasks:
@@ -58,6 +50,14 @@
   handlers:
     - name: Restart server
       reboot:
+      become: true
+
+- name: Set system up
+  hosts: inspector
+  tasks:
+    - name: Set time zone
+      timezone:
+        name: America/Los_Angeles
       become: true
 
 - name: Run Inspector container
