@@ -67,7 +67,7 @@
       ansible.builtin.file:
         path: /home/ciencia_datos/.testmake
         state: directory
-        recurse: yes
+        recurse: true
         owner: ciencia_datos
         group: ciencia_datos
     - name: Copy SSH keys
