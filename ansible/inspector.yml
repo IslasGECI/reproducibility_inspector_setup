@@ -36,6 +36,11 @@
         name: "python3-pip"
         state: present
       become: true
+    - name: Install pipx
+      ansible.builtin.apt:
+        name: "pipx"
+        state: present
+      become: true
     - name: Install Docker SDK for Python
       community.general.pipx:
         name: docker
