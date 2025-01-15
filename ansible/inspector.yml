@@ -44,6 +44,7 @@
     - name: Install Docker SDK for Python
       community.general.pipx:
         name: docker
+        install_deps: true
       notify: Restart server
     - name: Add to docker group '{{ ansible_user_id }}'
       ansible.builtin.user:
