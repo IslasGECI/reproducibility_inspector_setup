@@ -13,6 +13,7 @@ all: create_server sleep host_known setup_server
 	sleep
 
 check:
+	ansible-lint ansible/inspector.yml
 	cd src && terraform fmt -check
 
 clean:
