@@ -41,7 +41,7 @@
         name: docker
       notify: Restart server
     - name: Add to docker group '{{ ansible_user_id }}'
-      user:
+      ansible.builtin.user:
         name: "{{ ansible_user_id }}"
         groups: docker
         append: true
