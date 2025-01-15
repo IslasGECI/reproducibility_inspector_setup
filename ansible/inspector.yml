@@ -3,44 +3,44 @@
   hosts: inspector
   tasks:
     - name: Update system
-      apt:
+      ansible.builtin.apt:
         update_cache: true
       become: true
     - name: Install cURL
-      apt:
+      ansible.builtin.apt:
         name: "curl"
         state: present
       become: true
     - name: Install Docker
-      apt:
+      ansible.builtin.apt:
         name: "docker.io"
         state: present
       become: true
     - name: Install Docker-compose
-      apt:
+      ansible.builtin.apt:
         name: "docker-compose"
         state: present
       become: true
     - name: Install Git
-      apt:
+      ansible.builtin.apt:
         name: "git"
         state: present
       become: true
     - name: Install Make
-      apt:
+      ansible.builtin.apt:
         name: "make"
         state: present
       become: true
     - name: Install pip
-      apt:
+      ansible.builtin.apt:
         name: "python3-pip"
         state: present
       become: true
     - name: Install Docker SDK for Python
-      pip:
+      community.general.pipx:
         name: docker
       notify: Restart server
-    - name: Add '{{ ansible_user_id }}' to docker group
+    - name: Add to docker group '{{ ansible_user_id }}'
       user:
         name: "{{ ansible_user_id }}"
         groups: docker
@@ -49,14 +49,14 @@
       notify: Restart server
   handlers:
     - name: Restart server
-      reboot:
+      ansible.builtin.reboot:
       become: true
 
 - name: Set system up
   hosts: inspector
   tasks:
     - name: Set time zone
-      timezone:
+      community.general.timezone:
         name: America/Los_Angeles
       become: true
 
@@ -71,12 +71,12 @@
         owner: ciencia_datos
         group: ciencia_datos
     - name: Copy SSH keys
-      copy:
+      ansible.builtin.copy:
         src: /root/.ssh/id_rsa
         dest: /tmp/id_rsa
         mode: '0600'
     - name: Copy secrets
-      copy:
+      ansible.builtin.copy:
         src: /root/.vault/
         dest: /home/ciencia_datos/.vault/
         mode: '0600'
