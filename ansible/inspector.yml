@@ -79,7 +79,7 @@
     - name: Copy SSH keys
       ansible.builtin.copy:
         src: /root/.ssh/id_rsa
-        dest: /tmp/id_rsa
+        dest: /home/ciencia_datos/.ssh/id_rsa
         mode: '0600'
     - name: Copy secrets
       ansible.builtin.copy:
@@ -96,5 +96,5 @@
         volumes:
           - /home/ciencia_datos/.testmake:/home/ciencia_datos/.testmake
           - /home/ciencia_datos/.vault/.secrets:/home/ciencia_datos/.vault/.secrets
-          - /tmp/id_rsa:/root/.ssh/id_rsa
+          - /home/ciencia_datos/.ssh/id_rsa:/root/.ssh/id_rsa
           - /var/run/docker.sock:/var/run/docker.sock
