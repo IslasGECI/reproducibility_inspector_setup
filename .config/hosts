@@ -1,2 +1,2 @@
 [servers]
-inspector ansible_host="{{ lookup('env', 'INSPECTOR_IP') }}" ansible_user=ciencia_datos
+inspector ansible_host="{{ lookup('env', 'INSPECTOR_IP') }}" ansible_user=ubuntu
