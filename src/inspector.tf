@@ -1,76 +1,108 @@
-resource "azurerm_resource_group" "inspector" {
-  name     = "inspector-resources"
-  location = "West US 2"
-}
-
-resource "azurerm_virtual_network" "inspector" {
-  name                = "inspector-network"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.inspector.location
-  resource_group_name = azurerm_resource_group.inspector.name
-}
-
-resource "azurerm_subnet" "inspector" {
-  name                 = "internal"
-  resource_group_name  = azurerm_resource_group.inspector.name
-  virtual_network_name = azurerm_virtual_network.inspector.name
-  address_prefixes     = ["10.0.2.0/24"]
-}
-
-resource "azurerm_public_ip" "inspector" {
-  name                = "inspector-public-ip"
-  location            = azurerm_resource_group.inspector.location
-  resource_group_name = azurerm_resource_group.inspector.name
-  allocation_method   = "Static"
-}
-
-resource "azurerm_network_interface" "inspector" {
-  name                = "inspector-nic"
-  location            = azurerm_resource_group.inspector.location
-  resource_group_name = azurerm_resource_group.inspector.name
-
-  ip_configuration {
-    name                          = "internal"
-    subnet_id                     = azurerm_subnet.inspector.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.inspector.id
+resource "aws_vpc" "inspector" {
+  cidr_block = "10.0.0.0/16"
+  tags = {
+    Name = "inspector-vpc"
   }
 }
 
-resource "azurerm_linux_virtual_machine" "inspector" {
-  name                = "inspector"
-  resource_group_name = azurerm_resource_group.inspector.name
-  location            = azurerm_resource_group.inspector.location
-  size                = "Standard_D2as_v4"
-  admin_username      = "ciencia_datos"
-  network_interface_ids = [
-    azurerm_network_interface.inspector.id,
-  ]
-
-  admin_ssh_key {
-    username   = "ciencia_datos"
-    public_key = file("~/.ssh/id_rsa.pub")
-  }
-
-  os_disk {
-    caching              = "ReadWrite"
-    storage_account_type = "Standard_LRS"
-    disk_size_gb         = 128
-  }
-
-  source_image_reference {
-    publisher = "canonical"
-    offer     = "ubuntu-24_04-lts"
-    sku       = "server"
-    version   = "latest"
+resource "aws_internet_gateway" "inspector" {
+  vpc_id = aws_vpc.inspector.id
+  tags = {
+    Name = "inspector-igw"
   }
 }
 
-data "azurerm_public_ip" "inspector" {
-  name                = azurerm_public_ip.inspector.name
-  resource_group_name = azurerm_linux_virtual_machine.inspector.resource_group_name
+resource "aws_subnet" "inspector" {
+  vpc_id            = aws_vpc.inspector.id
+  cidr_block        = "10.0.2.0/24"
+  availability_zone = "us-east-1a"
+  tags = {
+    Name = "inspector-subnet"
+  }
+}
+
+resource "aws_security_group" "inspector" {
+  name        = "inspector-sg"
+  description = "Security group for inspector"
+  vpc_id      = aws_vpc.inspector.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_network_interface" "inspector" {
+  subnet_id       = aws_subnet.inspector.id
+  security_groups = [aws_security_group.inspector.id]
+
+  tags = {
+    Name = "inspector-nic"
+  }
+}
+
+resource "aws_eip" "inspector" {
+  domain            = "vpc"
+  network_interface = aws_network_interface.inspector.id
+  depends_on        = [aws_vpc.inspector]
+
+  tags = {
+    Name = "inspector-public-ip"
+  }
+}
+
+resource "aws_route_table" "inspector" {
+  vpc_id = aws_vpc.inspector.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.inspector.id
+  }
+  tags = {
+    Name = "inspector-rt"
+  }
+}
+
+resource "aws_route_table_association" "inspector" {
+  subnet_id      = aws_subnet.inspector.id
+  route_table_id = aws_route_table.inspector.id
+}
+
+resource "aws_key_pair" "inspector" {
+  public_key = file("~/.ssh/id_rsa.pub")
+  tags = {
+    Name = "inspector-key"
+  }
+}
+
+resource "aws_instance" "inspector" {
+  ami           = "ami-02ebdb11bae1b2486"
+  instance_type = "t3.large"
+  key_name      = aws_key_pair.inspector.id
+
+  network_interface {
+    network_interface_id = aws_network_interface.inspector.id
+    device_index         = 0
+  }
+
+  tags = {
+    Name = "inspector"
+  }
+
+  root_block_device {
+    volume_size = 128
+    volume_type = "gp3"
+  }
 }
 
 output "inspector_ip" {
-  value = data.azurerm_public_ip.inspector.ip_address
+  value = aws_eip.inspector.public_ip
 }
