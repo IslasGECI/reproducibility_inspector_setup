@@ -5,6 +5,9 @@ terraform {
       version = "=3.0.0"
     }
   }
+  backend "local" {
+    path = "/workdir/state/terraform.tfstate"
+  }
 }
 
 provider "azurerm" {
