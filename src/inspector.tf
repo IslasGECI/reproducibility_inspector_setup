@@ -22,6 +22,23 @@ variable "admin_username" {
   default     = "ciencia_datos"
 }
 
+variable "source_image_reference" {
+  description = "Source image used to create the VM."
+  type = object({
+    publisher = string
+    offer     = string
+    sku       = string
+    version   = string
+  })
+
+  default = {
+    publisher = "canonical"
+    offer     = "ubuntu-26_04-lts"
+    sku       = "server"
+    version   = "latest"
+  }
+}
+
 resource "azurerm_resource_group" "inspector" {
   name     = var.resource_group_name
   location = var.location
@@ -83,10 +100,10 @@ resource "azurerm_linux_virtual_machine" "inspector" {
   }
 
   source_image_reference {
-    publisher = "canonical"
-    offer     = "ubuntu-26_04-lts"
-    sku       = "server"
-    version   = "latest"
+    publisher = var.source_image_reference.publicher
+    offer     = var.source_image_reference.offer
+    sku       = var.source_image_reference.sku
+    version   = var.source_image_reference.varsion
   }
 }
 
