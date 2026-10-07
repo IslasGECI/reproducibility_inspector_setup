@@ -16,6 +16,12 @@ variable "vm_size" {
   default     = "Standard_D2as_v4"
 }
 
+variable "admin_username" {
+  description = "Administrator account for the VM."
+  type        = string
+  default     = "ciencia_datos"
+}
+
 resource "azurerm_resource_group" "inspector" {
   name     = var.resource_group_name
   location = var.location
@@ -60,13 +66,13 @@ resource "azurerm_linux_virtual_machine" "inspector" {
   resource_group_name = var.resource_group_name
   location            = var.location
   size                = var.vm_size
-  admin_username      = "ciencia_datos"
+  admin_username      = var.admin_username
   network_interface_ids = [
     azurerm_network_interface.inspector.id,
   ]
 
   admin_ssh_key {
-    username   = "ciencia_datos"
+    username   = var.admin_username
     public_key = file("~/.ssh/id_rsa.pub")
   }
 
