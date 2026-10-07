@@ -4,8 +4,14 @@ variable "location" {
   default     = "West US 2"
 }
 
+variable "resource_group_name" {
+  description = "Name of the Azure resource group."
+  type        = string
+  default     = "inspector-resources"
+}
+
 resource "azurerm_resource_group" "inspector" {
-  name     = "inspector-resources"
+  name     = var.resource_group_name
   location = var.location
 }
 
@@ -13,12 +19,12 @@ resource "azurerm_virtual_network" "inspector" {
   name                = "inspector-network"
   address_space       = ["10.0.0.0/16"]
   location            = var.location
-  resource_group_name = azurerm_resource_group.inspector.name
+  resource_group_name = var.resource_group_name
 }
 
 resource "azurerm_subnet" "inspector" {
   name                 = "internal"
-  resource_group_name  = azurerm_resource_group.inspector.name
+  resource_group_name  = var.resource_group_name
   virtual_network_name = azurerm_virtual_network.inspector.name
   address_prefixes     = ["10.0.2.0/24"]
 }
@@ -26,14 +32,14 @@ resource "azurerm_subnet" "inspector" {
 resource "azurerm_public_ip" "inspector" {
   name                = "inspector-public-ip"
   location            = var.location
-  resource_group_name = azurerm_resource_group.inspector.name
+  resource_group_name = var.resource_group_name
   allocation_method   = "Static"
 }
 
 resource "azurerm_network_interface" "inspector" {
   name                = "inspector-nic"
   location            = var.location
-  resource_group_name = azurerm_resource_group.inspector.name
+  resource_group_name = var.resource_group_name
 
   ip_configuration {
     name                          = "internal"
@@ -45,7 +51,7 @@ resource "azurerm_network_interface" "inspector" {
 
 resource "azurerm_linux_virtual_machine" "inspector" {
   name                = "inspector"
-  resource_group_name = azurerm_resource_group.inspector.name
+  resource_group_name = var.resource_group_name
   location            = var.location
   size                = "Standard_D2as_v4"
   admin_username      = "ciencia_datos"
