@@ -10,6 +10,12 @@ variable "resource_group_name" {
   default     = "inspector-resources"
 }
 
+variable "vm_size" {
+  description = "Azure Virtual Machine size."
+  type        = string
+  default     = "Standard_D2as_v4"
+}
+
 resource "azurerm_resource_group" "inspector" {
   name     = var.resource_group_name
   location = var.location
@@ -53,7 +59,7 @@ resource "azurerm_linux_virtual_machine" "inspector" {
   name                = "inspector"
   resource_group_name = var.resource_group_name
   location            = var.location
-  size                = "Standard_D2as_v4"
+  size                = var.vm_size
   admin_username      = "ciencia_datos"
   network_interface_ids = [
     azurerm_network_interface.inspector.id,
