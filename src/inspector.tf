@@ -1,12 +1,18 @@
+variable "location" {
+  description = "Azure region for all resources."
+  type        = string
+  default     = "West US 2"
+}
+
 resource "azurerm_resource_group" "inspector" {
   name     = "inspector-resources"
-  location = "West US 2"
+  location = var.location
 }
 
 resource "azurerm_virtual_network" "inspector" {
   name                = "inspector-network"
   address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.inspector.location
+  location            = var.location
   resource_group_name = azurerm_resource_group.inspector.name
 }
 
@@ -19,14 +25,14 @@ resource "azurerm_subnet" "inspector" {
 
 resource "azurerm_public_ip" "inspector" {
   name                = "inspector-public-ip"
-  location            = azurerm_resource_group.inspector.location
+  location            = var.location
   resource_group_name = azurerm_resource_group.inspector.name
   allocation_method   = "Static"
 }
 
 resource "azurerm_network_interface" "inspector" {
   name                = "inspector-nic"
-  location            = azurerm_resource_group.inspector.location
+  location            = var.location
   resource_group_name = azurerm_resource_group.inspector.name
 
   ip_configuration {
@@ -40,7 +46,7 @@ resource "azurerm_network_interface" "inspector" {
 resource "azurerm_linux_virtual_machine" "inspector" {
   name                = "inspector"
   resource_group_name = azurerm_resource_group.inspector.name
-  location            = azurerm_resource_group.inspector.location
+  location            = var.location
   size                = "Standard_D2as_v4"
   admin_username      = "ciencia_datos"
   network_interface_ids = [
