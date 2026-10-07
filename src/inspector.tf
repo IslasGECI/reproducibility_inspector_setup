@@ -100,7 +100,7 @@ resource "azurerm_linux_virtual_machine" "inspector" {
   }
 
   source_image_reference {
-    publisher = var.source_image_reference.publicher
+    publisher = var.source_image_reference.publisher
     offer     = var.source_image_reference.offer
     sku       = var.source_image_reference.sku
     version   = var.source_image_reference.varsion
