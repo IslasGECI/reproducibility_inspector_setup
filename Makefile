@@ -36,7 +36,6 @@ host_known:
 
 init:
 	cd src && \
-	az login --username $${AZURE_USERNAME} --password $${AZURE_PASSWORD} && \
 	terraform init
 
 setup_server:
