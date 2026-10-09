@@ -1,11 +1,15 @@
 terraform {
   required_providers {
-    aws = {
-      source = "hashicorp/aws"
+    azurerm = {
+      source  = "hashicorp/azurerm"
+      version = "=3.0.0"
     }
+  }
+  backend "local" {
+    path = "/workdir/state/terraform.tfstate"
   }
 }
 
-provider "aws" {
-  region = "us-east-1"
+provider "azurerm" {
+  features {}
 }
